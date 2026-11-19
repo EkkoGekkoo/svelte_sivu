@@ -37,15 +37,35 @@ export const getShifts = async (day: string) => {
         const shifts = await conn.query(`
             SELECT 
             V.id AS vuoroId,
-            V.pv, V.vuoro AS vuorotyyppi,
-            V.note, V.aika,
+            V.pv, 
+            V.vuoro AS vuorotyyppi,
+            V.note,
+            V.aika,
             H.id AS henkiloId,
             H.nimi AS henkilo,
             H.lyhenne
-            FROM vuoro V INNER JOIN henkilo H ON V.henkilo = H.id WHERE pv = ?;`
+            FROM vuoro V INNER JOIN henkilo H ON V.henkilo = H.id 
+            WHERE pv = ?;`
         , [dayDate]);
 
-        return shifts;
+        const formattedShift = [];
+        for(const shift of shifts) {
+            const henkilo = {
+                id: shift.henkiloId,
+                nimi: shift.henkilo,
+                lyhenne: shift.lyhenne
+            }
+            const vuoro = {
+                id: shift.vuoroId,
+                pv: shift.pv,
+                aika: shift.aika,
+                vuoro: shift.vuorotyyppi,
+                note: shift.note
+            }
+            formattedShift.push({henkilo, vuoro});
+        }
+
+        return formattedShift;
     }
     catch(err) {
         console.log(err)

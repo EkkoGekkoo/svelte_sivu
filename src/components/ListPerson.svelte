@@ -13,6 +13,9 @@
     const coords = {x: 0, y: 0};
 
     onMount(() => {
+        const ghostImg = new Image(1,1);
+        ghostImg.src = "/img/transparent.png";
+
         const dragStartHandler = (e: DragEvent) => {
             dragState.draggedItem = target;
 
@@ -20,8 +23,8 @@
                 henkilo: data,
                 source: null
             }
-
-            if(e.dataTransfer) e.dataTransfer.setDragImage(new Image(), 0, 0);
+            
+            e.dataTransfer!.setDragImage(ghostImg, 0, 0);
             
             ghostElem = document.createElement("div");
             ghostElem.classList.add("ghost");

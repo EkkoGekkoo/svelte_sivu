@@ -26,10 +26,10 @@
         target.ondrop = async () => {
             try {
                 const sourceData = dragState.dragData;
-
+                console.log(sourceData)
                 if(!sourceData) return;
                 if (!(sourceData.henkilo.id && sourceData.henkilo.nimi && sourceData.henkilo.lyhenne)) return;
-
+                
                 const data = {
                     henkilo: {
                         id: sourceData.henkilo.id,
@@ -52,9 +52,7 @@
                     body: JSON.stringify(data)
                 });
 
-                invalidate("data:shifts");
-
-                
+                invalidate("data:shifts");                
             } catch (err) {
                 return;
             }

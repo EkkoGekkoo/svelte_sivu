@@ -13,14 +13,18 @@ type DragData = {
 }
 
 type Shift = {
-    vuoroId: number,
-    pv: Date,
-    vuorotyyppi: number,
-    note: string | null,
-    aika: number
-    henkiloId: number,
-    henkilo: string,
-    lyhenne: string
+    henkilo: {
+        id: number,
+        nimi: string
+        lyhenne: string
+    },
+    vuoro: {
+        id: number,
+        pv: Date,
+        aika: number,
+        vuoro: number,
+        note: string
+    } | null
 }
 
 type ShiftType = {

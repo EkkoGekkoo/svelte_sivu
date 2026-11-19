@@ -14,7 +14,7 @@
 
     const cellShifts = (aika: number, vuoro: ShiftType) => {
         let s: Array<Shift> = [...shifts()];
-        const filtered = s.filter(x => x.aika === aika && x.vuorotyyppi === vuoro.id);
+        const filtered = s.filter(x => x.vuoro!.aika === aika && x.vuoro!.vuoro === vuoro.id);
 
         return filtered;
     }   
