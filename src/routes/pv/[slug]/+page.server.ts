@@ -19,7 +19,6 @@ export async function load({params, depends}) {
     
     const people = await getPeople();
     const shiftTypes = await getShiftTypes();
-    console.log(await getShifts(pathDate.format("YYYY-MM-DD")))
     const shifts = await getShifts(pathDate.format("YYYY-MM-DD"));
     
     depends("data:people", "data:shifts", "data:shiftTypes");

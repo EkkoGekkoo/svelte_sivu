@@ -44,7 +44,7 @@ export const getShifts = async (day: string) => {
             H.id AS henkiloId,
             H.nimi AS henkilo,
             H.lyhenne
-            FROM vuoro V INNER JOIN henkilo H ON V.henkilo = H.id 
+            FROM vuoro V JOIN henkilo H ON V.henkilo = H.id 
             WHERE pv = ?;`
         , [dayDate]);
 
@@ -67,10 +67,6 @@ export const getShifts = async (day: string) => {
 
         return formattedShift;
     }
-    catch(err) {
-        console.log(err)
-        return false;
-    }
     finally {
         await conn?.release();
     }
@@ -80,11 +76,28 @@ export const addShift = async (data: any) => {
     let conn;
     try {
         conn = await pool.getConnection();
+        const alreadyExists  = (await conn.query("SELECT COUNT(*) > 0 AS c FROM vuoro WHERE pv = ? AND henkilo = ? AND aika = ? AND vuoro = ?;",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi]
+        ))[0]["c"];
+        if(alreadyExists) return {success: false, status: "exists"};
+        
+        const sourceId = data.source ? data.source.id : -1;
+        const sourceShift = data.source ? data.source.vuoro : -1;
+        const absentCol = (await conn.query("SELECT id FROM vuorotyyppi WHERES"))
+
+            const absent = (await conn.query("SELECT id FROM vuoro WHERE pv = ? AND henkilo = ? AND vuoro = (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika]
+        ))[0];
+        if(absent && sourceId != absent.id) return {success: false, status: "absent"};
+
+        const overlap  = (await conn.query("SELECT vuoro FROM vuoro WHERE pv = ? AND henkilo = ? AND aika = ?;",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika]
+        ))[0];
+        if(overlap && sourceShift != overlap.vuoro) return {success: false, status: "overlap"};
+
         await conn.beginTransaction();
-        if(data.source) {
-           const deleteSource = await conn.query("DELETE FROM vuoro WHERE id = ?", [data.source.vuoroId]);
-        }
-        const newShift = await conn.query("INSERT INTO vuoro(pv, vuoro, aika, henkilo, note) VALUES(?, ?, ?, ?, ?)",
+        if(data.source) await conn.query("DELETE FROM vuoro WHERE id = ?;", [data.source.id]);
+        const newShift = await conn.query("INSERT INTO vuoro(pv, vuoro, aika, henkilo, note) VALUES(?, ?, ?, ?, ?);",
             [
                 new Date(data.vuoro.paiva),
                 data.vuoro.vuorotyyppi,
@@ -93,16 +106,40 @@ export const addShift = async (data: any) => {
                 null
             ]
         );
+
+        const absentToday = (await conn.query("SELECT COUNT(*) > 0 AS c FROM vuoro WHERE pv = ? AND henkilo = ? AND aika = ? AND vuoro = (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi]
+        ))[0]["c"] == 1;
+
+        if(absentToday) await conn.query("DELETE FROM vuoro WHERE pv = ? AND henkilo = ? AND vuoro != (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi])
+        
         await conn.commit();
 
-        return true;
+        if(absentToday) return {success: true, status: "added_to_absent"};
+        else return {success: true, status: data.source ? "moved" : "added"};
     }
     catch(err) {
         await conn?.rollback();
         console.log(err)
-        return false;
+        return {success: false, status: "error"};
     }
     finally {
         if(conn) conn.release();
+    }
+}
+
+export const deleteShift = async (id: number) => {
+    let conn;
+    try {
+        console.log(id)
+        conn = await pool.getConnection();
+        const q = await conn.query("DELETE FROM vuoro WHERE id = ?", [id]);
+    }
+    catch(err) {
+        console.log(err)
+    }
+    finally {
+        if(conn) conn.end();
     }
 }

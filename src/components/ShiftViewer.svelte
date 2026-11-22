@@ -94,7 +94,8 @@
         padding: 0;
         margin: 0;
         height: 3rem;
-        width: 7rem;
+        width: 10rem;
+        min-width: fit-content;
         font-weight: bold;
     }
 

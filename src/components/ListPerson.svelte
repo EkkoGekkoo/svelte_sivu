@@ -21,9 +21,9 @@
 
             dragState.dragData = {
                 henkilo: data,
-                source: null
+                vuoro: null
             }
-            
+
             e.dataTransfer!.setDragImage(ghostImg, 0, 0);
             
             ghostElem = document.createElement("div");

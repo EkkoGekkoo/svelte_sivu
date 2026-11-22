@@ -1,5 +1,5 @@
 <div draggable="true" bind:this={target}>
-    <strong>{data.lyhenne}</strong> {data.nimi}
+    {data.henkilo.lyhenne}
 </div>
 
 <script lang="ts">
@@ -17,17 +17,19 @@
         ghostImg.src = "/img/transparent.png";
 
         const dragStartHandler = (e: DragEvent) => {
+            target.style.display = "none";
             dragState.draggedItem = target;
 
             dragState.dragData = {
-                henkilo: data,
-                source: null
+                henkilo: data.henkilo,
+                vuoro: data.vuoro
             }
+
             e.dataTransfer!.setDragImage(ghostImg, 0, 0);
             
             ghostElem = document.createElement("div");
             ghostElem.classList.add("ghost");
-            ghostElem.innerHTML = data.lyhenne;
+            ghostElem.innerHTML = data.henkilo.lyhenne;
             dragState.ghost = ghostElem;
 
             document.body.appendChild(ghostElem);
@@ -48,6 +50,7 @@
             dragState.ghost = null;
             dragState.draggedItem = null;
             document.body.removeChild(ghostElem);
+            target.style.display = "unset";
         }
 
         target.addEventListener("dragstart", dragStartHandler);

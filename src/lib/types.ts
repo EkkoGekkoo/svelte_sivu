@@ -1,17 +1,3 @@
-type DragData = {
-    henkilo: { 
-        id: number,
-        nimi: string,
-        lyhenne: string
-    },
-    source: {
-        vuoroId: number,
-        vuorotyyppi: number,
-        aika: number,
-        paiva: string
-    } | null // null jos tulee PersonLististä
-}
-
 type Shift = {
     henkilo: {
         id: number,

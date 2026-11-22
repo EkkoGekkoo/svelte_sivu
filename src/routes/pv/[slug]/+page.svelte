@@ -22,7 +22,6 @@
         padding: 0;
         min-width: 0;
     }
-
 </style>
 
 <main>

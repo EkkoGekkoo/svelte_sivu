@@ -26,7 +26,6 @@
         target.ondrop = async () => {
             try {
                 const sourceData = dragState.dragData;
-                console.log(sourceData)
                 if(!sourceData) return;
                 if (!(sourceData.henkilo.id && sourceData.henkilo.nimi && sourceData.henkilo.lyhenne)) return;
                 
@@ -41,7 +40,7 @@
                         aika: aika(),
                         paiva: pv().date
                     },
-                    source: sourceData.source
+                    source: sourceData.vuoro
                 }
 
                 const newShift = await fetch("/api/shifts", {

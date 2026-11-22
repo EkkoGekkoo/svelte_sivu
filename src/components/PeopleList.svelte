@@ -1,16 +1,37 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import ListPerson from "./ListPerson.svelte";
+    import { dragState } from "$lib/stores/dragItemState.svelte";
+    import { invalidate } from "$app/navigation";
 
     const props = $props();
 
     let sidebarShown = $state(true);
     const toggleSidebar = () => sidebarShown = !sidebarShown;
-    
+    let target: HTMLElement;
+
+    onMount(() => {
+        target.ondragover = (e) => e.preventDefault();
+        target.ondrop = async (e) => {
+            const sourceData = dragState.dragData;
+            const id = sourceData?.vuoro?.id ?? -1;
+            const req = await fetch("/api/shifts",
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(id)
+                }
+            );
+            invalidate("data:shifts");
+        }
+    });
 </script>
 
 <div>
     {#if sidebarShown}
-    <aside>
+    <aside bind:this={target}>
         <ul>
         {#each props.people as person}
             <li>
