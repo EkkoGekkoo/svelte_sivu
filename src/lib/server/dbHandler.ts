@@ -83,10 +83,10 @@ export const addShift = async (data: any) => {
         
         const sourceId = data.source ? data.source.id : -1;
         const sourceShift = data.source ? data.source.vuoro : -1;
-        const absentCol = (await conn.query("SELECT id FROM vuorotyyppi WHERES"))
+        const absentCol = (await conn.query("SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän'"))[0].id;
 
-            const absent = (await conn.query("SELECT id FROM vuoro WHERE pv = ? AND henkilo = ? AND vuoro = (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
-            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika]
+        const absent = (await conn.query("SELECT id FROM vuoro WHERE pv = ? AND henkilo = ? AND vuoro = ?;",
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, absentCol]
         ))[0];
         if(absent && sourceId != absent.id) return {success: false, status: "absent"};
 
@@ -108,11 +108,11 @@ export const addShift = async (data: any) => {
         );
 
         const absentToday = (await conn.query("SELECT COUNT(*) > 0 AS c FROM vuoro WHERE pv = ? AND henkilo = ? AND aika = ? AND vuoro = (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
-            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi]
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi, absentCol]
         ))[0]["c"] == 1;
 
         if(absentToday) await conn.query("DELETE FROM vuoro WHERE pv = ? AND henkilo = ? AND vuoro != (SELECT id FROM vuorotyyppi WHERE nimi = 'Poissa koko päivän');",
-            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, data.vuoro.vuorotyyppi])
+            [data.vuoro.paiva, data.henkilo.id, data.vuoro.aika, absentCol])
         
         await conn.commit();
 

@@ -11,14 +11,12 @@
     const shiftTypes = () => props.shiftTypes;
     const date = () => props.date;
 
-
     const cellShifts = (aika: number, vuoro: ShiftType) => {
         let s: Array<Shift> = [...shifts()];
         const filtered = s.filter(x => x.vuoro!.aika === aika && x.vuoro!.vuoro === vuoro.id);
 
         return filtered;
     }   
-    
     
     const nav = (direction: 1 | -1) => {
         const s = page.url.pathname.split("/");
@@ -34,17 +32,13 @@
 </script>
 
 <div data-date={date()}>
+    <nav>
+        <button onclick={() => nav(-1)}>&#8592;</button>
+        <p>{date().str}</p>
+        <button onclick={() => nav(1)}>&#8594;</button>  
+    </nav>
     <table>
         <thead>
-            <tr>
-                <th colspan={shiftTypes().length + 1}>
-                    <nav>
-                        <button onclick={() => nav(-1)}>&lt;---------</button>
-                        <p>{date().str}</p>
-                        <button onclick={() => nav(1)}>---------&gt;</button>  
-                    </nav>
-                </th>
-            </tr>
             <tr>
                 <th></th>
                 {#each shiftTypes() as t}
@@ -103,25 +97,9 @@
         border: 1px solid black;
     }
 
-    thead tr:first-child nav{
-        position: sticky;
-        display: flex;
-        width: 100%;
-        justify-content: space-around;
-        align-items: center;
-        gap: 100px;
-    }
-
     nav p {
         font-size: x-large;
         margin: 0;
-    }
-
-    thead button {
-        height: fit-content;
-        padding: 10px 50px;
-        flex: 1;
-        font-size: x-large;
     }
 
     tbody tr th {
@@ -133,10 +111,6 @@
         left: 0;
         background-color: var(--dustyOlive);
         color: whitesmoke;
-    }
-
-    th p {
-        display: inline;
     }
 
     thead th:not(:last-child) {
@@ -153,6 +127,34 @@
 
     tr:nth-child(odd):not(thead tr) {
         background-color: white;
+    }
+
+    nav {
+        align-items: center;
+        display: flex;
+        justify-content: space-evenly;
+        position: sticky;
+        left: 0;
+    }
+
+    nav * {
+        flex: 1;
+        text-align: center;
+    }
+
+    nav button {
+        flex: 2;
+        background-color: var(--darkKhaki);
+        border: none;
+        height: 3rem;
+        font-size: xx-large;
+        font-weight: bold;
+        color: white;
+    }
+
+    nav button:hover {
+        background-color: var(--khaki);
+        cursor: pointer;
     }
     
 </style>

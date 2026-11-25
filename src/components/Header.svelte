@@ -41,4 +41,8 @@
         box-shadow: 2px 2px 3px black;
         cursor: pointer;
     }
+
+    button:hover {
+        background-color: var(--ashGrey);
+    }
 </style>
